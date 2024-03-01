@@ -89,7 +89,17 @@ func Run() error {
 	networkTopology, err := topologyStore.Topology()
 	// if topology is not already in file, read from provider
 	if err != nil {
-		networkTopology, err = topologyProvider.NetworkTopology("")
+		/*networkTopology, err = topologyProvider.NetworkTopology("")
+		panicOnError(err)*/
+
+		networkTopology, err := topology.ProcessRawTopology(&topology.RawTopology{
+			Peers: []topology.RawPeer{
+				/*{PeerAddress: "/dns4/relayer2/tcp/9001/p2p/QmeTuMtdpPB7zKDgmobEwSvxodrf5aFVSmBXX3SQJVjJaT"},
+				{PeerAddress: "/dns4/relayer3/tcp/9002/p2p/QmYAYuLUPNwYEBYJaKHcE7NKjUhiUV8txx2xDXHvcYa1xK"},
+				{PeerAddress: "/dns4/relayer1/tcp/9000/p2p/QmcvEg7jGvuxdsUFRUiE4VdrL2P1Yeju5L83BsJvvXz7zX"},*/
+			},
+			Threshold: "2",
+		})
 		panicOnError(err)
 
 		err = topologyStore.StoreTopology(networkTopology)
@@ -110,7 +120,7 @@ func Run() error {
 
 	go health.StartHealthEndpoint(configuration.RelayerConfig.HealthPort)
 
-	communication := p2p.NewCommunication(host, "p2p/sygma")
+	communication := p2p.NewCommunication(host, "p2p/staava")
 	electorFactory := elector.NewCoordinatorElectorFactory(host, configuration.RelayerConfig.BullyConfig)
 	coordinator := tss.NewCoordinator(host, communication, electorFactory)
 	keyshareStore := keyshare.NewKeyshareStore(configuration.RelayerConfig.MpcConfig.KeysharePath)
